@@ -2,7 +2,8 @@ const crypto = require("crypto")
 const async_error = require("express-async-handler")
 const userschema = require("../models/usermodel");
 const { model } = require("mongoose");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const { access } = require("fs");
 
 const register = async_error(async (req, res) => {
 
@@ -18,11 +19,10 @@ const register = async_error(async (req, res) => {
         throw new Error("User already registered")
     }
 
-    const hash = crypto.pbkdf2Sync(req.body.password, "1000", 100000, 64, 'sha512').toString('hex');
+    // const password = crypto.pbkdf2Sync(hash.toString(), "1000", 100000, 64, 'sha512').toString('hex');
     const createusername = await userschema.create({
         username,
-        hash
-
+        password
     })
     res.json({
         'message': "created user"
@@ -34,19 +34,19 @@ const login = async_error(async (req, res) => {
     if (!req.body.username || !req.body.password) {
         throw new Error("Username or password not provided")
     }
-    const hash = crypto.pbkdf2Sync(req.body.password, "1000", 100000, 64, 'sha512').toString('hex');
+    // const hash = crypto.pbkdf2Sync(req.body.password, "1000", 100000, 64, 'sha512').toString('hex');
 
-    const user = userschema.findOne({
+    const user = await userschema.findOne({
         username, password
     })
-    console.log(hash);
 
-    console.log(user);
+    console.log(user.username);
     
     
 
     if (user) {
-        if (user.password == hash) {
+        console.log("sanchit")
+        if (user.password == password) {
             console.log("true")
             const accesstoken = jwt.sign({
                 user: {
@@ -55,20 +55,22 @@ const login = async_error(async (req, res) => {
                 }
             },process.env.ACCESS_TOKEN,
             {
-                expireIn:"1m"
+                expiresIn: "1m"
             }
         )
             res.json({
-                "msg": "LOGIN"
+                "message": accesstoken
             })
         }
+ 
+
     }
     else{
         res.json({
            "msg": "Kuch to gadbad hai!!!"
         })
     }
-
+    
 })
 
 module.exports = { register,login }; // Exporting the functions to be used in userRoutes.js
