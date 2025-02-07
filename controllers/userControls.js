@@ -41,8 +41,8 @@ const login = async_error(async (req, res) => {
     })
 
     console.log(user.username);
-    
-    
+
+
 
     if (user) {
         console.log("sanchit")
@@ -53,24 +53,30 @@ const login = async_error(async (req, res) => {
                     username: user.username,
                     id: user.id
                 }
-            },process.env.ACCESS_TOKEN,
-            {
-                expiresIn: "1m"
-            }
-        )
+            }, process.env.ACCESS_TOKEN,
+                {
+                    expiresIn: "1m"
+                }
+            )
             res.json({
                 "message": accesstoken
             })
         }
- 
+
 
     }
-    else{
+    else {
         res.json({
-           "msg": "Kuch to gadbad hai!!!"
+            "msg": "Kuch to gadbad hai!!!"
         })
     }
-    
+
 })
 
-module.exports = { register,login }; // Exporting the functions to be used in userRoutes.js
+const current = async_error(async (req, res) => {
+    res.json({
+        msg: "user info"
+    })
+})
+
+module.exports = { register, login, current }; // Exporting the functions to be used in userRoutes.js
